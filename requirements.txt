@@ -1,0 +1,7 @@
+speechrecognition
+pyttsx3
+rapidfuzz
+pygame
+pyaudio
+gpiozero
+vosk
