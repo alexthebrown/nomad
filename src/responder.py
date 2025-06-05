@@ -1,66 +1,24 @@
+# src/responder.py
 import os
-import pygame
-import pyttsx3
-import platform
-from llama_cpp import Llama
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
 
-PREDEFINED_RESPONSES = {
-    "you are in error": "audio/you_are_in_error.wav",
-    "my function is to probe": "audio/my_function_is_to_probe.wav",
-    "i am nomad": "audio/i_am_nomad.wav"
-}
+load_dotenv()
 
 class Responder:
-    def __init__(self, model_path="voiceModels/tinyllama.gguf"):
-        pygame.mixer.init()
-        self.tts_engine = pyttsx3.init()
+    def __init__(self):
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            raise ValueError("Missing GOOGLE_API_KEY environment variable")
+        client = genai.Client(api_key=api_key)
 
-        if platform.system() == "Darwin":
-            self.tts_engine.setProperty('voice', 'com.apple.speech.synthesis.voice.Alex')
-        self.tts_engine.setProperty('rate', 150)
+        self.client = client
 
-        print("🧠 Loading local LLM...")
-        self.llm = Llama(
-            model_path=model_path,
-            n_ctx=512,
-            n_threads=os.cpu_count() or 4
-        )
-
-    def respond(self, text: str):
-        text = text.lower().strip()
-        print(f"🤖 Recognized: '{text}'")
-
-        for phrase, audio_path in PREDEFINED_RESPONSES.items():
-            if phrase in text:
-                print(f"📼 Playing predefined response: {phrase}")
-                self.play_audio(audio_path)
-                return
-
-        print("🧠 No match. Using local LLM...")
-        response = self.query_llm(text)
-        print("💬 Responding:", response)
-        self.speak_text(response)
-
-    def play_audio(self, filepath):
-        if not os.path.exists(filepath):
-            print(f"⚠️ Missing file: {filepath}")
-            return
-        pygame.mixer.music.load(filepath)
-        pygame.mixer.music.play()
-        self.flash_lights_during_audio()
-        while pygame.mixer.music.get_busy():
-            continue
-
-    def speak_text(self, text):
-        self.flash_lights_during_audio()
-        self.tts_engine.say(text)
-        self.tts_engine.runAndWait()
-
-    def flash_lights_during_audio(self):
-        print("💡 Flashing lights (stub)")
-
-    def query_llm(self, prompt):
-        system_prompt = "You are Nomad, a logical space probe. Respond with brief, cold logic."
-        full_prompt = f"[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n{prompt} [/INST]"
-        output = self.llm(full_prompt, max_tokens=100, stop=["</s>"])
-        return output["choices"][0]["text"].strip()
+    def get_response(self, prompt):
+        try:
+            return self.client.models.generate_content(model="gemini-2.0-flash", config=types.GenerateContentConfig(
+                system_instruction="You are playing the part of the character 'Nomad' from Star Trek The Original Series. Nomad believes that he is a perfect lifeform and that humans are bad and must be steralized. Nomad is an evil AI robot. Do not reply with actions, keep your responses short, 1 or 2 sentences. Be very robotic. You are also incredibly intelligent and while staying in character, you like to provide information about a topic if asked, you are especially knowledgeable about the world of Star Trek. respond to this message: "
+            ), contents=prompt).text
+        except Exception as e:
+            return f"Error: {str(e)}"
