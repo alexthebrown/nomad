@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Nomad Control Panel</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #111;
+      color: #0f0;
+      padding: 2rem;
+    }
+    h1 {
+      color: #0ff;
+    }
+    .btn {
+      background: #222;
+      color: #0f0;
+      padding: 0.5rem 1rem;
+      margin-right: 1rem;
+      border: 1px solid #0f0;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #0f0;
+      color: #000;
+    }
+    #log {
+      background: #000;
+      border: 1px solid #0f0;
+      padding: 1rem;
+      margin-top: 2rem;
+      height: 300px;
+      overflow-y: scroll;
+      white-space: pre-wrap;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Nomad Control Panel</h1>
+  <button class="btn" onclick="sendCommand('reset')">🔄 Reset</button>
+  <button class="btn" onclick="sendCommand('shutdown')">🛑 Shutdown</button>
+
+  <div id="log">Loading logs...</div>
+
+  <script>
+    async function sendCommand(cmd) {
+      await fetch(`/api/${cmd}`, { method: "POST" });
+      alert(cmd + " command sent.");
+    }
+
+    async function fetchLogs() {
+      const res = await fetch("/api/logs");
+      const logs = await res.json();
+      document.getElementById("log").innerText = logs.join("\n");
+    }
+
+    setInterval(fetchLogs, 2000);
+    fetchLogs();
+  </script>
+</body>
+</html>

@@ -1,53 +1,37 @@
-import pyaudio
+# src/recognizer_mac.py
+import sounddevice as sd
+import queue
+import vosk
 import json
-from vosk import Model, KaldiRecognizer
-import os
-
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "../model")
-SAMPLE_RATE = 16000
-CHUNK = 4096
 
 class MacSpeechRecognizer:
     def __init__(self):
-        if not os.path.exists(MODEL_PATH):
-            raise FileNotFoundError("Vosk model not found. Please download and extract it to 'model/'")
+        self.q = queue.Queue()
+        self.model = vosk.Model("model")  # or full path to your Vosk model
+        self.samplerate = 16000
 
-        self.model = Model(MODEL_PATH)
-        self.recognizer = KaldiRecognizer(self.model, SAMPLE_RATE)
-        self.p = pyaudio.PyAudio()
+        # Try to use default input device or let user choose
+        self.device = None  # or set this to a device index
+        self.stream = sd.InputStream(
+            samplerate=self.samplerate,
+            device=self.device,
+            channels=1,
+            dtype='int16',
+            callback=self.callback
+        )
+        self.stream.start()
 
-    def listen(self, timeout=10):
-        print("🎤 Listening on macOS (press Ctrl+C to interrupt)...")
+    def callback(self, indata, frames, time, status):
+        if status:
+            print(f"⚠️ Mic status: {status}")
+        self.q.put(bytes(indata))
 
-        stream = self.p.open(format=pyaudio.paInt16,
-                             channels=1,
-                             rate=SAMPLE_RATE,
-                             input=True,
-                             frames_per_buffer=CHUNK)
+    def listen(self):
+        print("🎧 Listening...")
 
-        stream.start_stream()
-
-        result_text = ""
-
-        try:
-            while True:
-                data = stream.read(CHUNK, exception_on_overflow=False)
-                if self.recognizer.AcceptWaveform(data):
-                    result = json.loads(self.recognizer.Result())
-                    result_text = result.get("text", "")
-                    if result_text:
-                        break
-        except KeyboardInterrupt:
-            print("\n🛑 Stopped by user.")
-        finally:
-            stream.stop_stream()
-            stream.close()
-            self.p.terminate()
-
-        return result_text.strip()
-
-# Test run
-if __name__ == "__main__":
-    sr = MacSpeechRecognizer()
-    text = sr.listen()
-    print("You said:", text)
+        rec = vosk.KaldiRecognizer(self.model, self.samplerate)
+        while True:
+            data = self.q.get()
+            if rec.AcceptWaveform(data):
+                result = json.loads(rec.Result())
+                return result.get("text", "")
