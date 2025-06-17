@@ -13,8 +13,8 @@ LEDS_PER_SIDE = 6
 NUM_SIDES = 4
 
 # Define your two colors for the top two LEDs on each side
-TOP_LED_COLOR_1 = (209, 77, 77)  # Example: Red
-TOP_LED_COLOR_2 = (227, 220, 11)  # Example: Yellow
+TOP_LED_COLOR_1 = (255, 0, 0)  # Example: Red
+TOP_LED_COLOR_2 = (252, 244, 3)  # Example: Yellow
 
 def breathe_color(color, duration=2.0, steps=50):
     for i in range(steps + 1):
@@ -45,7 +45,7 @@ def set_random_leds(color):
 
 def random_pattern_thread():
     while True:
-        set_random_leds((119, 209, 77))
+        set_random_leds((0, 255, 0))
         pixels.show()
         time.sleep(random.uniform(0.1, 0.5))
 
