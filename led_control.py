@@ -3,7 +3,7 @@ import board
 import neopixel
 
 # Configure the number of LEDs in your strip
-LED_COUNT = 24  # Example: 30 LEDs
+LED_COUNT = 10  # Example: 30 LEDs
 # Configure the GPIO pin connected to the data input of the LED strip
 LED_PIN = board.D18  # Example: GPIO 18
 
