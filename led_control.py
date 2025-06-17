@@ -4,13 +4,17 @@ import neopixel
 import random
 import threading
 
-LED_COUNT = 24
+LED_COUNT = 24  # Assuming 4 sides * 6 LEDs/side = 24 LEDs
 LED_PIN = board.D18
 
 pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=0.2, auto_write=False, pixel_order=neopixel.GRB)
 
 LEDS_PER_SIDE = 6
 NUM_SIDES = 4
+
+# Define your two colors for the top two LEDs on each side
+TOP_LED_COLOR_1 = (209, 77, 77)  # Example: Red
+TOP_LED_COLOR_2 = (227, 220, 11)  # Example: Yellow
 
 def breathe_color(color, duration=2.0, steps=50):
     for i in range(steps + 1):
@@ -24,11 +28,11 @@ def breathe_color(color, duration=2.0, steps=50):
         breathed_color = (int(r * brightness), int(g * brightness), int(b * brightness))
         yield breathed_color
 
-def set_top_leds(color):
+def set_top_leds(color1, color2):
     for side in range(NUM_SIDES):
         start_index = side * LEDS_PER_SIDE
-        pixels[start_index] = color
-        pixels[start_index + 1] = color
+        pixels[start_index] = color1
+        pixels[start_index + 1] = color2
 
 def set_random_leds(color):
     for i in range(2, LEDS_PER_SIDE):
@@ -41,7 +45,7 @@ def set_random_leds(color):
 
 def random_pattern_thread():
     while True:
-        set_random_leds((255, 255, 255))
+        set_random_leds((119, 209, 77))
         pixels.show()
         time.sleep(random.uniform(0.1, 0.5))
 
@@ -51,10 +55,16 @@ if __name__ == "__main__":
 
     try:
         while True:
-            top_led_color = (0, 0, 255)
+            # Breathe with color 1 for the first LED and color 2 for the second
+            for breathed_color1 in breathe_color(TOP_LED_COLOR_1):
+                breathed_color2_gen = breathe_color(TOP_LED_COLOR_2)
+                try:
+                    breathed_color2 = next(breathed_color2_gen)
+                except StopIteration:
+                    breathed_color2_gen = breathe_color(TOP_LED_COLOR_2)
+                    breathed_color2 = next(breathed_color2_gen)
 
-            for color in breathe_color(top_led_color):
-                set_top_leds(color)
+                set_top_leds(breathed_color1, breathed_color2)
                 pixels.show()
                 time.sleep(0.04)
 
