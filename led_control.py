@@ -56,29 +56,6 @@ def random_pattern_thread():
         pixels.show()
         time.sleep(random.uniform(0.1, 0.5))
 
-# Function to find the audio device index
-def find_input_device_index():
-    p = pyaudio.PyAudio()
-    try:
-        device_count = p.get_device_count()
-        for i in range(device_count):
-            device_info = p.get_device_info_by_index(i)
-            print(f"Device {i}: {device_info['name']}")
-            if device_info['maxInputChannels'] > 0:
-                # You might need to adjust this condition based on your microphone's name or characteristics
-                if "your_microphone_name" in device_info['name'].lower():
-                    return i
-    finally:
-        p.terminate()
-    return None
-
-# Get the audio device index
-input_device_index = find_input_device_index()
-if input_device_index is None:
-    print("Error: Audio input device not found.")
-    # Handle the error or exit the script appropriately
-    exit()
-
 def audio_reactive_led_control():
     p = pyaudio.PyAudio()
 
