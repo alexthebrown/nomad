@@ -5,7 +5,7 @@ from src.responder import Responder
 from src.speaker import Speaker
 from web.server import run_server, get_control_flags, log_event
 import threading
-from src.led_control import audio_reactive_led_control
+from src.led_controller import audio_reactive_led_control
 
 
 recognizer = SpeechRecognizer()
