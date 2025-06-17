@@ -1,48 +1,42 @@
-# src/led_controller.py
+import time
 import board
 import neopixel
-import time
 
-# Parameters
-LED_COUNT = 8       # Change to match your number of LEDs
-LED_PIN = board.D18 # GPIO 18 (PWM required)
-BRIGHTNESS = 0.5    # 0.0 to 1.0
-ORDER = neopixel.GRB
+# Configure the number of LEDs in your strip
+LED_COUNT = 30  # Example: 30 LEDs
+# Configure the GPIO pin connected to the data input of the LED strip
+LED_PIN = board.D18  # Example: GPIO 18
 
-# Initialize the NeoPixel strip
-pixels = neopixel.NeoPixel(
-    LED_PIN, LED_COUNT, brightness=BRIGHTNESS, auto_write=False, pixel_order=ORDER
-)
+# Create a NeoPixel object
+pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=0.2, auto_write=False, pixel_order=neopixel.GRB)
 
-# Example animations
-def rainbow_cycle(wait=0.05):
-    for j in range(255):
-        for i in range(LED_COUNT):
-            rc_index = (i * 256 // LED_COUNT) + j
-            pixels[i] = wheel(rc_index & 255)
-        pixels.show()
-        time.sleep(wait)
+# Define a function to set the color of a single LED
+def set_pixel_color(pixel_num, color):
+    pixels[pixel_num] = color
+    pixels.show()
 
-def wheel(pos):
-    if pos < 85:
-        return (255 - pos * 3, pos * 3, 0)
-    elif pos < 170:
-        pos -= 85
-        return (0, 255 - pos * 3, pos * 3)
-    else:
-        pos -= 170
-        return (pos * 3, 0, 255 - pos * 3)
+# Define a function to set the color of all LEDs
+def set_all_pixels(color):
+    pixels.fill(color)
+    pixels.show()
 
-# Example: Blink all LEDs red
-def blink_red():
-    for _ in range(3):
-        pixels.fill((255, 0, 0))
-        pixels.show()
-        time.sleep(0.5)
-        pixels.fill((0, 0, 0))
-        pixels.show()
-        time.sleep(0.5)
+# Example usage:
+# Turn all LEDs red
+set_all_pixels((255, 0, 0))
+time.sleep(1)
 
-if __name__ == "__main__":
-    blink_red()
-    rainbow_cycle()
+# Turn all LEDs green
+set_all_pixels((0, 255, 0))
+time.sleep(1)
+
+# Turn all LEDs blue
+set_all_pixels((0, 0, 255))
+time.sleep(1)
+
+# Set individual LEDs to different colors
+set_pixel_color(0, (255, 255, 255))  # First LED white
+set_pixel_color(10, (127, 0, 255)) # 11th LED purple
+time.sleep(1)
+
+# Turn off all LEDs
+set_all_pixels((0, 0, 0))
