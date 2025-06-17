@@ -11,6 +11,7 @@ from src.led_control import audio_reactive_led_control
 
 led_thread = threading.Thread(target=audio_reactive_led_control, daemon=True)
 led_thread.start()
+log_event("led_thread active")
 
 recognizer = SpeechRecognizer()
 responder = Responder()
