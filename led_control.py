@@ -54,20 +54,32 @@ if __name__ == "__main__":
     random_thread.start()
 
     try:
-        while True:
-            # Breathe with color 1 for the first LED and color 2 for the second
-            for breathed_color1 in breathe_color(TOP_LED_COLOR_1):
-                breathed_color2_gen = breathe_color(TOP_LED_COLOR_2)
-                try:
-                    breathed_color2 = next(breathed_color2_gen)
-                except StopIteration:
-                    breathed_color2_gen = breathe_color(TOP_LED_COLOR_2)
-                    breathed_color2 = next(breathed_color2_gen)
+        # Create separate generators for each color's breathing effect
+        breathe_gen1 = breathe_color(TOP_LED_COLOR_1)
+        breathe_gen2 = breathe_color(TOP_LED_COLOR_2)
 
-                set_top_leds(breathed_color1, breathed_color2)
-                pixels.show()
-                time.sleep(0.04)
+        while True:
+            # Get the next color from each generator
+            try:
+                breathed_color1 = next(breathe_gen1)
+            except StopIteration:
+                # If a generator is exhausted, reset it
+                breathe_gen1 = breathe_color(TOP_LED_COLOR_1)
+                breathed_color1 = next(breathe_gen1)
+
+            try:
+                breathed_color2 = next(breathe_gen2)
+            except StopIteration:
+                # If a generator is exhausted, reset it
+                breathe_gen2 = breathe_color(TOP_LED_COLOR_2)
+                breathed_color2 = next(breathe_gen2)
+
+            # Set the top LEDs with the breathing colors
+            set_top_leds(breathed_color1, breathed_color2)
+            pixels.show()
+            time.sleep(0.04)
 
     except KeyboardInterrupt:
         pixels.fill((0, 0, 0))
         pixels.show()
+
