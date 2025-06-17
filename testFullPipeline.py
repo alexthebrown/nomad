@@ -4,11 +4,27 @@ from src.recognizer import SpeechRecognizer
 from src.responder import Responder
 from src.speaker import Speaker
 from web.server import run_server, get_control_flags, log_event
+import threading
+from src.led_control import audio_reactive_led_control
+
 
 recognizer = SpeechRecognizer()
 responder = Responder()
 speaker = Speaker()
 audioPlayer = AudioPlayer()
+
+# Start the LED control in a separate thread
+# This will run the audio_reactive_led_control function in the background
+led_thread = threading.Thread(target=audio_reactive_led_control, daemon=True)
+led_thread.start()
+
+# Verify if the thread started successfully
+if led_thread.is_alive():
+    log_event("led_thread started successfully")
+else:
+    log_event("led_thread failed to start")
+
+log_event("led_thread active")
 
 # Start web server
 run_server()
