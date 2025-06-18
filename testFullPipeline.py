@@ -5,7 +5,7 @@ from src.responder import Responder
 from src.speaker import Speaker
 from web.server import run_server, get_control_flags, log_event
 import threading
-from src.led_controller import audio_reactive_led_control
+from src.led_controller import LED_CONTROLLER
 
 import time
 import board
@@ -34,12 +34,16 @@ if __name__ == "__main__":
     speaker = Speaker()
     audioPlayer = AudioPlayer()
 
+    led_controller = LED_CONTROLLER()
+
+
+
     # Start the LED control thread
-    led_thread = threading.Thread(target=audio_reactive_led_control, args=(stop_event,), daemon=True)
+    led_thread = threading.Thread(target=led_controller.audio_reactive_led_control, args=(stop_event,), daemon=True)
     led_thread.start()
 
     # Start the random pattern thread
-    random_thread = threading.Thread(target=random_pattern_thread, args=(stop_event,), daemon=True)
+    random_thread = threading.Thread(target=led_controller.random_pattern_thread, args=(stop_event,), daemon=True)
     random_thread.start()
 
     if led_thread.is_alive:

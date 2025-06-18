@@ -3,119 +3,82 @@ import board
 import neopixel
 import random
 import threading
-import pyaudio
-import numpy as np
 
-LED_COUNT = 24  # Assuming 4 sides * 6 LEDs/side = 24 LEDs
-LED_PIN = board.D18
+class LED_CONTROLLER:
+    def __init__(self, pixel_pin, led_count, brightness=0.2, pixel_order=neopixel.GRB):
+        # Initialize instance attributes
+        self.pixel_pin = pixel_pin
+        self.led_count = led_count
+        self.brightness = brightness
+        self.pixel_order = pixel_order
+        self.pixels = neopixel.NeoPixel(
+            self.pixel_pin, self.led_count, brightness=self.brightness, auto_write=False, pixel_order=self.pixel_order
+        )
 
-pixels = neopixel.NeoPixel(LED_PIN, LED_COUNT, brightness=0.2, auto_write=False, pixel_order=neopixel.GRB)
+        self.LEDS_PER_SIDE = 6  # Assuming 4 sides * 6 LEDs/side = 24 LEDs total
+        self.NUM_SIDES = self.led_count // self.LEDS_PER_SIDE
 
-LEDS_PER_SIDE = 6
-NUM_SIDES = 4
+        # Define your two colors for the top two LEDs on each side (as instance attributes)
+        self.TOP_LED_COLOR_1 = (255, 0, 0)  # Example: Red
+        self.TOP_LED_COLOR_2 = (252, 244, 3)  # Example: Yellow
 
-# Define your two colors for the top two LEDs on each side
-TOP_LED_COLOR_1 = (255, 0, 0)  # Example: Red
-TOP_LED_COLOR_2 = (252, 244, 3)  # Example: Yellow
+    def breathe_color(self, color, duration=2.0, steps=50): # Add self
+        for i in range(steps + 1):
+            brightness = i / steps
+            r, g, b = color
+            breathed_color = (int(r * brightness), int(g * brightness), int(b * brightness))
+            yield breathed_color
+        for i in range(steps, -1, -1):
+            brightness = i / steps
+            r, g, b = color
+            breathed_color = (int(r * brightness), int(g * brightness), int(b * brightness))
+            yield breathed_color
 
-CHUNK = 1024
-FORMAT = pyaudio.paInt16
-CHANNELS = 1 # Or 2 for stereo
-RATE = 44100 # Adjust as needed
-AUDIO_INTENSITY_THRESHOLD = 500  # Adjust as needed
-MAX_AUDIO_INTENSITY = 10000 # Adjust as needed
+    def set_top_leds(self, color1, color2): # Add self
+        for side in range(self.NUM_SIDES): # Use self.NUM_SIDES
+            start_index = side * self.LEDS_PER_SIDE # Use self.LEDS_PER_SIDE
+            self.pixels[start_index] = color1 # Use self.pixels
+            self.pixels[start_index + 1] = color2 # Use self.pixels
 
-def breathe_color(color, duration=2.0, steps=50):
-    for i in range(steps + 1):
-        brightness = i / steps
-        r, g, b = color
-        breathed_color = (int(r * brightness), int(g * brightness), int(b * brightness))
-        yield breathed_color
-    for i in range(steps, -1, -1):
-        brightness = i / steps
-        r, g, b = color
-        breathed_color = (int(r * brightness), int(g * brightness), int(b * brightness))
-        yield breathed_color
+    def set_random_leds(self, color): # Add self
+        for i in range(2, self.LEDS_PER_SIDE): # Use self.LEDS_PER_SIDE
+            if random.random() < 0.5:
+                for side in range(self.NUM_SIDES): # Use self.NUM_SIDES
+                    self.pixels[side * self.LEDS_PER_SIDE + i] = color # Use self.pixels and self.LEDS_PER_SIDE
+            else:
+                for side in range(self.NUM_SIDES): # Use self.NUM_SIDES
+                    self.pixels[side * self.LEDS_PER_SIDE + i] = (0, 0, 0) # Use self.pixels and self.LEDS_PER_SIDE
 
-def set_top_leds(color1, color2):
-    for side in range(NUM_SIDES):
-        start_index = side * LEDS_PER_SIDE
-        pixels[start_index] = color1
-        pixels[start_index + 1] = color2
+    def random_pattern_thread(self, stop_event): # Add self and stop_event
+        while not stop_event.is_set():  # Check the event in the loop
+            self.set_random_leds((0, 255, 0)) # Call with self.
+            self.pixels.show() # Use self.pixels
+            time.sleep(random.uniform(0.1, 0.5))
+        print("Random pattern thread stopping gracefully.") # Log shutdown
 
-def set_random_leds(color):
-    for i in range(2, LEDS_PER_SIDE):
-        if random.random() < 0.5:
-            for side in range(NUM_SIDES):
-                pixels[side * LEDS_PER_SIDE + i] = color
-        else:
-            for side in range(NUM_SIDES):
-                pixels[side * LEDS_PER_SIDE + i] = (0, 0, 0)
+    def audio_reactive_led_control(self, stop_event): # Add self and stop_event
+        # Removed audio sampling and replaced with breathing effect
+        # The while loop will now handle the breathing pattern
 
-def random_pattern_thread():
-    while True:
-        set_random_leds((0, 255, 0))
-        pixels.show()
-        time.sleep(random.uniform(0.1, 0.5))
+        breathe_gen1 = self.breathe_color(self.TOP_LED_COLOR_1) # Call with self.
+        breathe_gen2 = self.breathe_color(self.TOP_LED_COLOR_2) # Call with self.
 
-def audio_reactive_led_control():
-    p = pyaudio.PyAudio()
-
-    try:
-        # Find the device index of your microphone
-        # You'll need to figure this out by examining the output of `arecord -l`
-        # and potentially specifying the device index in the open() call
-        input_device_index = 3 # Replace with the actual index if needed
-
-        stream = p.open(format=FORMAT,
-                        channels=CHANNELS,
-                        rate=RATE,
-                        input=True,
-                        frames_per_buffer=CHUNK,
-                        input_device_index=input_device_index) # Specify the device if needed
-
-        # Create the random pattern thread
-        random_thread = threading.Thread(target=random_pattern_thread, daemon=True)
-        random_thread.start()
-
-        while True:
+        while not stop_event.is_set():  # Check the event in the loop
             try:
-                # Read audio data
-                data = stream.read(CHUNK, exception_on_overflow=False)
-                audio_data = np.frombuffer(data, dtype=np.int16)
+                # Get the next color from each generator
+                breathed_color1 = next(breathe_gen1)
+                breathed_color2 = next(breathe_gen2)
 
-                # Calculate audio intensity (e.g., RMS)
-                intensity = np.sqrt(np.mean(np.square(audio_data)))
+                # Set the top LEDs with the breathing colors
+                self.set_top_leds(breathed_color1, breathed_color2) # Call with self.
+                self.pixels.show() # Use self.pixels
+                time.sleep(0.04)
 
-                # Map intensity to brightness (0.0 to 1.0)
-                brightness = 0.0
-                if intensity > AUDIO_INTENSITY_THRESHOLD:
-                     brightness = min(1.0, (intensity - AUDIO_INTENSITY_THRESHOLD) / (MAX_AUDIO_INTENSITY - AUDIO_INTENSITY_THRESHOLD))
+            except StopIteration:
+                # If a generator is exhausted, reset it
+                breathe_gen1 = self.breathe_color(self.TOP_LED_COLOR_1) # Call with self.
+                breathe_gen2 = self.breathe_color(self.TOP_LED_COLOR_2) # Call with self.
 
-                # Set the brightness of the top LEDs based on audio intensity
-                for side in range(NUM_SIDES):
-                    start_index = side * LEDS_PER_SIDE
-                    pixels[start_index] = tuple(int(c * brightness) for c in TOP_LED_COLOR_1)
-                    pixels[start_index + 1] = tuple(int(c * brightness) for c in TOP_LED_COLOR_2)
+        # Cleanup is handled in the finally block below
+        print("Audio reactive LED thread stopping gracefully.") # Log shutdown
 
-                pixels.show()
-
-            except IOError as e:
-                print(f"Error reading audio stream: {e}")
-                # You might want to add error handling or restart the stream here
-
-    except KeyboardInterrupt:
-        pass # Handle exit
-
-    finally:
-        # Clean up
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        pixels.fill((0, 0, 0))
-        pixels.show()
-
-
-if __name__ == "__main__":
-    # You can call this function from your main script
-    audio_reactive_led_control()
