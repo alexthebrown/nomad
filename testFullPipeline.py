@@ -34,7 +34,7 @@ if __name__ == "__main__":
     speaker = Speaker()
     audioPlayer = AudioPlayer()
 
-    led_controller = LED_CONTROLLER()
+    led_controller = LED_CONTROLLER(board.D18, 24)
 
 
 
