@@ -65,7 +65,7 @@ def audio_reactive_led_control():
         # Find the device index of your microphone
         # You'll need to figure this out by examining the output of `arecord -l`
         # and potentially specifying the device index in the open() call
-        input_device_index = 1 # Replace with the actual index if needed
+        input_device_index = 3 # Replace with the actual index if needed
 
         stream = p.open(format=FORMAT,
                         channels=CHANNELS,
