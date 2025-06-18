@@ -48,6 +48,5 @@ class SpeechRecognizer:
 
 # Quick test
 if __name__ == "__main__":
-    # If using the ALSA configuration above, you might not need to specify device_index
     recognizer = SpeechRecognizer()
     print("You said:", recognizer.listen())
