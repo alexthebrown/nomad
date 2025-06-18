@@ -8,16 +8,17 @@ import os
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../model")
 
 # Sampling rate must match model
-SAMPLE_RATE = 16000
+SAMPLE_RATE = 16000 # Check if your microphone supports this sample rate.
 
 class SpeechRecognizer:
-    def __init__(self, device_index=None):  # Add device_index parameter
+    def __init__(self, device_index=None):
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError("Vosk model not found. Download and extract it to 'model/'")
         self.model = Model(MODEL_PATH)
+        # Ensure the sample rate here matches the Vosk model
         self.rec = KaldiRecognizer(self.model, SAMPLE_RATE)
         self.q = queue.Queue()
-        self.device_index = device_index # Store device index as instance attribute
+        self.device_index = device_index
 
     def _callback(self, indata, frames, time, status):
         if status:
@@ -26,12 +27,13 @@ class SpeechRecognizer:
 
     def listen(self, timeout=10):
         """Capture audio for a given time and return recognized text."""
+        result_text = ""  # Initialize result_text here
+
         try:
             with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype='int16',
                                    channels=1, callback=self._callback,
-                                   device=self.device_index): # Use the stored device index
+                                   device=self.device_index):
                 print("🎙️ Listening... (Ctrl+C to stop)")
-                result_text = ""
                 try:
                     while True:
                         data = self.q.get()
@@ -62,5 +64,5 @@ if __name__ == "__main__":
     # Example: If your microphone is device 1
     microphone_device_index = 1 # Replace with the actual index of your microphone
 
-    recognizer = SpeechRecognizer(device_index=microphone_device_index) # Pass the device index
+    recognizer = SpeechRecognizer(device_index=microphone_device_index)
     print("You said:", recognizer.listen())
