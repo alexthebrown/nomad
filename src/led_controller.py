@@ -80,5 +80,7 @@ class LED_CONTROLLER:
                 breathe_gen2 = self.breathe_color(self.TOP_LED_COLOR_2) # Call with self.
 
         # Cleanup is handled in the finally block below
+        self.pixels.fill((0, 0, 0))
+        self.pixels.show()
         print("Audio reactive LED thread stopping gracefully.") # Log shutdown
 
