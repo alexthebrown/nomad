@@ -8,15 +8,17 @@ import os
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "../model")
 
 # Sampling rate must match model
-SAMPLE_RATE = 16000
+SAMPLE_RATE = 16000 # Check if your microphone supports this sample rate.
 
 class SpeechRecognizer:
-    def __init__(self):  # Removed device_index parameter
+    def __init__(self, device_index=None):
         if not os.path.exists(MODEL_PATH):
             raise FileNotFoundError("Vosk model not found. Download and extract it to 'model/'")
         self.model = Model(MODEL_PATH)
+        # Ensure the sample rate here matches the Vosk model
         self.rec = KaldiRecognizer(self.model, SAMPLE_RATE)
         self.q = queue.Queue()
+        self.device_index = device_index
 
     def _callback(self, indata, frames, time, status):
         if status:
@@ -25,11 +27,12 @@ class SpeechRecognizer:
 
     def listen(self, timeout=10):
         """Capture audio for a given time and return recognized text."""
-        result_text = ""
+        result_text = ""  # Initialize result_text here
 
         try:
             with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype='int16',
-                                   channels=1, callback=self._callback): # Removed device parameter
+                                   channels=1, callback=self._callback,
+                                   device=self.device_index):
                 print("🎙️ Listening... (Ctrl+C to stop)")
                 try:
                     while True:
@@ -43,10 +46,12 @@ class SpeechRecognizer:
                     print("\n🛑 Interrupted by user")
         except Exception as e:
             print(f"Error starting audio stream: {e}")
+            # You might want to handle this error more gracefully
 
         return result_text.strip()
 
 # Quick test
 if __name__ == "__main__":
+    # If using the ALSA configuration above, you might not need to specify device_index
     recognizer = SpeechRecognizer()
     print("You said:", recognizer.listen())
