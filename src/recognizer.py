@@ -26,7 +26,7 @@ class SpeechRecognizer:
     def listen(self, timeout=10):
         """Capture audio for a given time and return recognized text."""
         with sd.RawInputStream(samplerate=SAMPLE_RATE, blocksize=8000, dtype='int16',
-                               channels=1, callback=self._callback, device=1):
+                               channels=1, callback=self._callback):
             print("🎙️ Listening... (Ctrl+C to stop)")
             result_text = ""
             try:
