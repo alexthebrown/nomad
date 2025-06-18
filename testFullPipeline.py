@@ -42,6 +42,16 @@ if __name__ == "__main__":
     random_thread = threading.Thread(target=random_pattern_thread, args=(stop_event,), daemon=True)
     random_thread.start()
 
+    if led_thread.is_alive:
+        log_event("Reactive Audio Thread Active")
+    else:
+        log_event("Reative Audio Thread Not Active")
+
+    if random_thread.is_alive:
+        log_event("Random LED Thread Active")
+    else:
+        log_event("Random LED Thread Not Active")
+
     # Start web server (assumes this is a blocking call)
     try:
         run_server()
