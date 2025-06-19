@@ -74,8 +74,10 @@ class LED_CONTROLLER:
                 self.pixels.show() # Use self.pixels
                 if talk_event:
                     time.sleep(0.001)
+                    print("In the fast area")
                 else:
                     time.sleep(0.04)
+                    print("In the slow area")
 
             except StopIteration:
                 # If a generator is exhausted, reset it
