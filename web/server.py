@@ -5,8 +5,9 @@ import time
 import os # To create the templates directory if it doesn't exist
 
 class WebServer:
-    def __init__(self, control_state):
+    def __init__(self, control_state, stop_event):
         self.control_state = control_state
+        self.stop_event = stop_event
         self.app = Flask(__name__)
         self._setup_routes()
         self.host = "0.0.0.0"
@@ -38,6 +39,7 @@ class WebServer:
             self.control_state["shutdown"] = True
             self.control_state["logs"].append(f"[{time.strftime('%H:%M:%S')}] Shutdown command received.")
             print(f"[{time.strftime('%H:%M:%S')}] Shutdown command received.")
+            self.stop_event.set()
             
             # This is crucial for unblocking the app.run() call,
             # allowing the Flask development server to exit.
@@ -236,7 +238,8 @@ if __name__ == "__main__":
     }
 
     # --- Create and run the web server ---
-    web_server = WebServer(control_state)
+    stop_event = threading.Event()
+    web_server = WebServer(control_state, stop_event)
 
     # Run the Flask app in a separate thread
     # use_reloader=False is crucial here to prevent Flask from spawning
@@ -266,6 +269,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print(f"[{time.strftime('%H:%M:%S')}] KeyboardInterrupt detected. Signalling shutdown.")
         control_state["shutdown"] = True # Signal shutdown if Ctrl+C is pressed in main thread
+        stop_event.set()
 
     finally:
         # Ensure the web server thread is gracefully stopped

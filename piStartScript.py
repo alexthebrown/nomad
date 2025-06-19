@@ -69,7 +69,7 @@ def nomad_main_thread(stop_event, talk_event):
 
 def nomad_web_server_thread(stop_event):
     try:
-        webServer = WebServer(control_state)
+        webServer = WebServer(control_state, stop_event)
         webServer.run()
     except Exception as e:
         print(f"Error in nomad_web_server_thread: {e}")
