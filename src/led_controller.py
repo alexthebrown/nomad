@@ -24,13 +24,13 @@ class LED_CONTROLLER:
         self.TOP_LED_COLOR_1 = (255, 0, 0)  # Example: Red
         self.TOP_LED_COLOR_2 = (252, 244, 3)  # Example: Yellow
 
-        self.MIDDLE_BRIGHTNESS_FACTOR = 0.5
+        self.MIDDLE_BRIGHTNESS_FACTOR = 0.3
         self.MIDDLE_COLOR_1 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_1)
         self.MIDDLE_COLOR_2 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_2)
         
 
         self.FLASH_ON_TIME = 0.2
-        self.FLASH_OFF_TIME = 0.05
+        self.FLASH_OFF_TIME = 0.005
 
     def breathe_color(self, color, duration=2.0, steps=50): # Add self
         for i in range(steps + 1):
