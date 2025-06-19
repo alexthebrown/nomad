@@ -48,8 +48,13 @@ def nomad_main_thread(stop_event):
                 audioPlayer.play(path)
             else:
                 reply = responder.get_response(text)
-                print(f"Nomad says: {reply}")
-                speaker.speak(reply)
+                newPath = match_trigger(reply)
+                if newPath:
+                    print(f"Playing clip for: {text}")
+                    audioPlayer.play(newPath)
+                else:
+                    print(f"Nomad says: {reply}")
+                    speaker.speak(reply)
 
     except KeyboardInterrupt:
         print("KeyboardInterrupt received in main loop. Signaling threads to stop.")
