@@ -15,12 +15,22 @@ class LED_CONTROLLER:
             self.pixel_pin, self.led_count, brightness=self.brightness, auto_write=False, pixel_order=self.pixel_order
         )
 
+        
+
         self.LEDS_PER_SIDE = 6  # Assuming 4 sides * 6 LEDs/side = 24 LEDs total
         self.NUM_SIDES = self.led_count // self.LEDS_PER_SIDE
 
         # Define your two colors for the top two LEDs on each side (as instance attributes)
         self.TOP_LED_COLOR_1 = (255, 0, 0)  # Example: Red
         self.TOP_LED_COLOR_2 = (252, 244, 3)  # Example: Yellow
+
+        self.MIDDLE_BRIGHTNESS_FACTOR = 0.5
+        self.MIDDLE_COLOR_1 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_1)
+        self.MIDDLE_COLOR_2 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_2)
+        
+
+        self.FLASH_ON_TIME = 0.05
+        self.FLASH_OFF_TIME = 0.05
 
     def breathe_color(self, color, duration=2.0, steps=50): # Add self
         for i in range(steps + 1):
@@ -39,6 +49,8 @@ class LED_CONTROLLER:
             start_index = side * self.LEDS_PER_SIDE # Use self.LEDS_PER_SIDE
             self.pixels[start_index] = color1 # Use self.pixels
             self.pixels[start_index + 1] = color2 # Use self.pixels
+            self.pixels.show()
+
 
     def set_random_leds(self, color): # Add self
         for i in range(2, self.LEDS_PER_SIDE): # Use self.LEDS_PER_SIDE
@@ -60,30 +72,27 @@ class LED_CONTROLLER:
         # Removed audio sampling and replaced with breathing effect
         # The while loop will now handle the breathing pattern
 
-        breathe_gen1 = self.breathe_color(self.TOP_LED_COLOR_1) # Call with self.
-        breathe_gen2 = self.breathe_color(self.TOP_LED_COLOR_2) # Call with self.
+        last_talk_state = False
+        while not stop_event.is_set(): 
+            current_talk_state = talk_event.is_set() # Check the event in the loop
+            
+            if current_talk_state:
+                self.set_top_leds(self.TOP_LED_COLOR_1, self.TOP_LED_COLOR_2)
+                time.sleep(self.FLASH_ON_TIME)
+                if stop_event.is_set(): break
 
-        while not stop_event.is_set():  # Check the event in the loop
-            try:
-                # Get the next color from each generator
-                breathed_color1 = next(breathe_gen1)
-                breathed_color2 = next(breathe_gen2)
+                self.set_top_leds((0,0,0), (0,0,0))
+                time.sleep(self.FLASH_OFF_TIME)
+                if stop_event.is_set(): break
+            
+            else:
+                if last_talk_state:
+                    self.set_top_leds(self.MIDDLE_COLOR_1, self.MIDDLE_COLOR_2)
+                time.sleep(0.1)
 
-                # Set the top LEDs with the breathing colors
-                self.set_top_leds(breathed_color1, breathed_color2) # Call with self.
-                self.pixels.show() # Use self.pixels
-                if talk_event.is_set():
-                    time.sleep(0.000000001)
-                    print("In the fast area")
-                else:
-                    time.sleep(0.9)
-                    print("In the slow area")
-
-            except StopIteration:
-                # If a generator is exhausted, reset it
-                breathe_gen1 = self.breathe_color(self.TOP_LED_COLOR_1) # Call with self.
-                breathe_gen2 = self.breathe_color(self.TOP_LED_COLOR_2) # Call with self.
-
+            current_talk_state = current_talk_state
+        
+            
         # Cleanup is handled in the finally block below
         self.pixels.fill((0, 0, 0))
         self.pixels.show()
