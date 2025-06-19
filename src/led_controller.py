@@ -56,7 +56,7 @@ class LED_CONTROLLER:
             time.sleep(random.uniform(0.1, 0.5))
         print("Random pattern thread stopping gracefully.") # Log shutdown
 
-    def audio_reactive_led_control(self, stop_event): # Add self and stop_event
+    def audio_reactive_led_control(self, stop_event, talk_event): # Add self and stop_event
         # Removed audio sampling and replaced with breathing effect
         # The while loop will now handle the breathing pattern
 
@@ -72,7 +72,10 @@ class LED_CONTROLLER:
                 # Set the top LEDs with the breathing colors
                 self.set_top_leds(breathed_color1, breathed_color2) # Call with self.
                 self.pixels.show() # Use self.pixels
-                time.sleep(0.04)
+                if talk_event:
+                    time.sleep(0.001)
+                else:
+                    time.sleep(0.04)
 
             except StopIteration:
                 # If a generator is exhausted, reset it
