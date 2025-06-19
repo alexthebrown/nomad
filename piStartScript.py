@@ -23,7 +23,9 @@ control_state = {
     }
 
 def nomad_main_thread(stop_event):
-    WAKE_WORD = 'nomad'
+    # WAKE_WORD = 'nomad'
+    WAKE_WORD = ''
+
     print("🎤 Nomad is now listening...")
     try:
         while True:
