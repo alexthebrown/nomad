@@ -73,10 +73,10 @@ class LED_CONTROLLER:
                 self.set_top_leds(breathed_color1, breathed_color2) # Call with self.
                 self.pixels.show() # Use self.pixels
                 if talk_event.is_set():
-                    time.sleep(0.001)
+                    time.sleep(0.000000001)
                     print("In the fast area")
                 else:
-                    time.sleep(0.04)
+                    time.sleep(0.9)
                     print("In the slow area")
 
             except StopIteration:
