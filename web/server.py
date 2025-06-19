@@ -14,7 +14,7 @@ class WebServer:
         def index():
             # You'll need to make sure the 'templates/index.html' file exists
             try:
-                with open("templates/index.html") as f:
+                with open("./templates/index.html") as f:
                     html = f.read()
                 return render_template_string(html)
             except FileNotFoundError:
