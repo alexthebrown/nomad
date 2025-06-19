@@ -30,7 +30,7 @@ class LED_CONTROLLER:
         
 
         self.FLASH_ON_TIME = 0.2
-        self.FLASH_OFF_TIME = 0.005
+        self.FLASH_OFF_TIME = 0.01
 
     def breathe_color(self, color, duration=2.0, steps=50): # Add self
         for i in range(steps + 1):
