@@ -92,7 +92,7 @@ TRIGGER_PHRASES = {
     "Well, I'm not the Kirk. Tell me what your function is.": "audio/yourUnits.mp3"
 }
 
-def match_trigger(recognized_text, threshold=70):
+def match_trigger(recognized_text, threshold=50):
     best_match, score, _ = process.extractOne(
         recognized_text.lower(),
         TRIGGER_PHRASES.keys(),
