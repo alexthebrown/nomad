@@ -72,7 +72,7 @@ class LED_CONTROLLER:
                 # Set the top LEDs with the breathing colors
                 self.set_top_leds(breathed_color1, breathed_color2) # Call with self.
                 self.pixels.show() # Use self.pixels
-                if talk_event:
+                if talk_event.is_set():
                     time.sleep(0.001)
                     print("In the fast area")
                 else:
