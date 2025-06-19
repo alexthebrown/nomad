@@ -29,7 +29,7 @@ class LED_CONTROLLER:
         self.MIDDLE_COLOR_2 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_2)
         
 
-        self.FLASH_ON_TIME = 0.05
+        self.FLASH_ON_TIME = 0.2
         self.FLASH_OFF_TIME = 0.05
 
     def breathe_color(self, color, duration=2.0, steps=50): # Add self
@@ -86,8 +86,7 @@ class LED_CONTROLLER:
                 if stop_event.is_set(): break
             
             else:
-                if last_talk_state:
-                    self.set_top_leds(self.MIDDLE_COLOR_1, self.MIDDLE_COLOR_2)
+                self.set_top_leds(self.MIDDLE_COLOR_1, self.MIDDLE_COLOR_2)
                 time.sleep(0.1)
 
             current_talk_state = current_talk_state
