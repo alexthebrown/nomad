@@ -47,7 +47,7 @@ TRIGGER_PHRASES = {
     "negative": "audio/negative.mp3",
     "Nomad, it's about time I told you who and what you are! I'm a biological unit, and I created you.": "audio/nonSeqInconsistency.mp3",
     "Jim, I don't think anybody's in there.": "audio/noParasiteAmNomad.mp3",
-    "notHostile": "audio/notHostile.mp3",
+    "Captain, the message is coming in now.": "audio/notHostile.mp3",
     "Repair that unit.": "audio/notPossible.mp3",
     "Did you destroy the Malurian system?": "audio/notTheSystem.mp3",
     # "Yes.": "audio/oneLarge.mp3",
