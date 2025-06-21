@@ -48,16 +48,17 @@ def nomad_main_thread(stop_event, talk_event):
                 print(f"Playing clip for: {text}")
                 audioPlayer.play(path)
             else:
-                reply = responder.get_response(text)
-                newPath = match_trigger(reply)
-                if newPath:
-                    talk_event.set()
-                    print(f"Playing clip for: {text}")
-                    audioPlayer.play(newPath)
-                else:
-                    talk_event.set()
-                    print(f"Nomad says: {reply}")
-                    speaker.speak(reply)
+                pass
+                # reply = responder.get_response(text)
+                # newPath = match_trigger(reply)
+                # if newPath:
+                #     talk_event.set()
+                #     print(f"Playing clip for: {text}")
+                #     audioPlayer.play(newPath)
+                # else:
+                #     talk_event.set()
+                #     print(f"Nomad says: {reply}")
+                #     speaker.speak(reply)
             talk_event.clear()
 
     except KeyboardInterrupt:
