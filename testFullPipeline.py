@@ -95,9 +95,10 @@ if __name__ == "__main__":
                     log_event(f"🎬 Playing clip for: {text}")
                     audioPlayer.play(path)
                 else:
-                    reply = responder.get_response(text)
-                    log_event(f"🤖 Nomad says: {reply}")
-                    speaker.speak(reply)
+                    pass
+                    # reply = responder.get_response(text)
+                    # log_event(f"🤖 Nomad says: {reply}")
+                    # speaker.speak(reply)
 
         except KeyboardInterrupt:
             log_event("KeyboardInterrupt received in main loop. Signaling threads to stop.")
