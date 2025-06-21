@@ -48,6 +48,11 @@ def nomad_main_thread(stop_event, talk_event):
                 print(f"Playing clip for: {text}")
                 audioPlayer.play(path)
             else:
+                path2 = match_trigger(text, 25)
+                if path2:
+                    talk_event.set()
+                    print(f"Playing 25% clip for: {text}")
+                    audioPlayer.play(path2)
                 pass
                 # reply = responder.get_response(text)
                 # newPath = match_trigger(reply)
