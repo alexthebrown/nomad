@@ -19,9 +19,9 @@ class LED_CONTROLLER:
         # This replaces the old LEDS_PER_SIDE and NUM_SIDES for addressing
         self.LED_TYPE_SEQUENCE = [
             1, 2, 4, 3, 5, 6,
-            5, 6, 4, 3, 1, 2,
+            5, 6, 4, 3, 2, 1,
             1, 2, 4, 3, 5, 6,
-            5, 6, 4, 3, 1, 2
+            5, 6, 4, 3, 2, 1
         ]
         
         # Ensure LED_COUNT matches the length of LED_TYPE_SEQUENCE
