@@ -44,7 +44,7 @@ class LED_CONTROLLER:
         self.TOP_LED_COLOR_2 = self.TYPE_COLORS[2]
 
         # Calculate middle brightness colors for top LEDs
-        self.MIDDLE_BRIGHTNESS_FACTOR = 0.2
+        self.MIDDLE_BRIGHTNESS_FACTOR = 0.4
         self.MIDDLE_COLOR_1 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_1)
         self.MIDDLE_COLOR_2 = tuple(int(c * self.MIDDLE_BRIGHTNESS_FACTOR) for c in self.TOP_LED_COLOR_2)
         
