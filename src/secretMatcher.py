@@ -2,6 +2,7 @@ from rapidfuzz import fuzz, process
 
 TRIGGER_PHRASES = {
     "You know who else is E equals 8?": "audio/cEqualEight.mp3",
+    "What will save my life someday?": "audio/hamboning.mp3",
 }
 
 def secret_match_trigger(recognized_text, threshold=50):

@@ -43,16 +43,16 @@ def nomad_main_thread(stop_event, talk_event):
                 print("Nomad received voice shutdown command.")
                 break
 
-            path = match_trigger(text)
+            path = secret_match_trigger(text, 90)
             if path:
                 talk_event.set()
-                print(f"Playing clip for: {text}")
+                print(f"Playing secret clip for: {text}")
                 audioPlayer.play(path)
             else:
-                path2 = secret_match_trigger(text, 90)
+                path2 = match_trigger(text)
                 if path2:
                     talk_event.set()
-                    print(f"Playing secret clip for: {text}")
+                    print(f"Playing clip for: {text}")
                     audioPlayer.play(path2)
                 else:
                     path3 = secret_match_trigger(text, 25)
