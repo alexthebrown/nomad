@@ -1,5 +1,6 @@
 from src.audio_player import AudioPlayer
 from src.matcher import match_trigger
+from src.secretMatcher import secret_match_trigger
 from src.recognizer import SpeechRecognizer
 from src.responder import Responder
 from src.speaker import Speaker
@@ -48,12 +49,18 @@ def nomad_main_thread(stop_event, talk_event):
                 print(f"Playing clip for: {text}")
                 audioPlayer.play(path)
             else:
-                path2 = match_trigger(text, 25)
+                path2 = secret_match_trigger(text, 90)
                 if path2:
                     talk_event.set()
-                    print(f"Playing 25% clip for: {text}")
+                    print(f"Playing secret clip for: {text}")
                     audioPlayer.play(path2)
-                pass
+                else:
+                    path3 = secret_match_trigger(text, 25)
+                    if path3:
+                        talk_event.set()
+                        print(f"Playing 25% match for: {text}")
+                        audioPlayer.play(path3)
+                    pass
                 # reply = responder.get_response(text)
                 # newPath = match_trigger(reply)
                 # if newPath:
